@@ -10,9 +10,11 @@ public:
 		return instance;
 	}
  
-private:
+protected:
 	Singleton();
-	Singleton(const Singleton&) = delete;
-	Singleton& operator=(const Singleton&) = delete;
+
+private:
+	Singleton(const Type&) = delete;
+	Singleton& operator=(const Type&) = delete;
 };
 

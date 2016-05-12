@@ -1,19 +1,28 @@
 #pragma once
 
 #include <string>
+#include <fstream>
 #include <mutex>
-#include "singleton.h"
 
 using namespace std;
 
 class Logger
 {
-private:
-	mutex _m;
 public:
+	static Logger& Instance()
+	{
+		static Logger instance;
+		return instance;
+	}
 	void Log(string);
-	friend class Singleton<Logger>;
+
+private:
+	Logger();
+	void Config();
+
+	mutex _m;
+	string logfile;
 };
 
-#define LOG Singleton<Logger>::Instance().Log
+#define LOG Logger::Instance().Log
 
