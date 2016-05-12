@@ -7,7 +7,7 @@ all:
 	$(CC) $(CFLAGS) -pthread logger.cpp test.cpp -o $(TARGET)
 
 clean:
-	rm -rf *.o $(TARGET)
+	rm -rf *.o *.log $(TARGET)
 
 run:
 	./$(TARGET)

@@ -17,7 +17,7 @@ void thread_func(int threadno, int howmany)
 
 int main() {
 
-	unsigned int howmany = 100000;
+	unsigned int howmany = 10;
 	unsigned int nthreads = thread::hardware_concurrency();
 	thread thread_array[nthreads];
 

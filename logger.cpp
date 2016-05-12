@@ -31,10 +31,11 @@ Logger::Logger()
 
 	if (!_logfilename.empty()) {
 		_logfile.open(_logfilename);
-	}
-	if (_logfile) {
-		_logtofile = true;
-		cout << "Logging to file " << _logfilename << endl;
+
+		if (_logfile) {
+			_logtofile = true;
+			cout << "Logging to file " << _logfilename << endl;
+		}
 	}
 }
 
@@ -59,13 +60,23 @@ void Logger::Config(void)
 			auto key = line.substr(0, pos);
 			auto value = line.substr(pos + 1);
 
-			if ("log2file" == key) {
-				continue;
-			}
-
 			if ("filename" == key) {
-				_logfilename = value;
+				if ("default" == value) {
+					time_t rawtime;
+					struct tm * timeinfo;
+					char buffer [80];
+
+					time (&rawtime);
+					timeinfo = localtime (&rawtime);
+
+					strftime (buffer, 80, "%F-%X", timeinfo);
+					_logfilename = buffer;
+					_logfilename += ".log";
+				} else {
+					_logfilename = value;
+				}
 			}
 		}
+		configfile.close();
 	}
 }
