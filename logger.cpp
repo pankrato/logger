@@ -1,20 +1,40 @@
 
 #include <iostream>
+#include <sstream>
+#include <ctime>
 #include "logger.h"
+
+unsigned int Logger::_counter = 0;
 
 void Logger::Log(string str, ...)
 {
 	lock_guard<mutex> lock(_logguard); // RAII
-	cout << str << endl;
-	_logfile << str << endl;
+
+	stringstream log;
+	log << _counter << " " << clock() << " " << str;
+
+	cout << log.str() << endl;
+
+	if (_logtofile) {
+		_logfile << log.str() << endl;
+	}
+
+	_counter++;
 }
 
 Logger::Logger()
 {
+	_logtofile = false;
+	_counter = 0;
+
 	Config();
 
 	if (!_logfilename.empty()) {
 		_logfile.open(_logfilename);
+	}
+	if (_logfile) {
+		_logtofile = true;
+		cout << "Logging to file " << _logfilename << endl;
 	}
 }
 
@@ -39,9 +59,12 @@ void Logger::Config(void)
 			auto key = line.substr(0, pos);
 			auto value = line.substr(pos + 1);
 
+			if ("log2file" == key) {
+				continue;
+			}
+
 			if ("filename" == key) {
 				_logfilename = value;
-				cout << "Logging to file " << value << endl;
 			}
 		}
 	}

@@ -21,18 +21,12 @@ private:
 	~Logger();
 	void Config();
 
+	static unsigned int _counter;
 	mutex _logguard;
 	string _logfilename;
 	ofstream _logfile;
+	bool _logtofile;
 };
 
 #define LOG Logger::Instance().Log
-
-enum {
-	LOG_NONE	= 0x00,
-	LOG_ERROR	= 0x10,
-	LOG_WARNING	= 0x20,
-	LOG_INFO	= 0x30,
-	LOG_ALL		= 0xff
-};
 

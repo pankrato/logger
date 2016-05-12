@@ -5,22 +5,24 @@
 
 using namespace std;
 
-void thread_func(int i)
+void thread_func(int threadno, int howmany)
 {
 	stringstream ss;
-	ss << "Hello from tread " << i;
-	LOG(ss.str());
-	this_thread::sleep_for(chrono::seconds(1));
-	LOG(ss.str());
+	ss << "Hello from tread " << threadno;
+
+	for (int i = 0; i < howmany; i++) {
+		LOG(ss.str());
+	}
 }
 
 int main() {
 
-	const unsigned int nthreads = thread::hardware_concurrency();
+	unsigned int howmany = 100000;
+	unsigned int nthreads = thread::hardware_concurrency();
 	thread thread_array[nthreads];
 
 	for (unsigned int i = 0; i < nthreads; i++) {
-		thread_array[i] = thread(thread_func, i);
+		thread_array[i] = thread(thread_func, i, howmany);
 	}
 
 	for (unsigned int i = 0; i < nthreads; i++) {
