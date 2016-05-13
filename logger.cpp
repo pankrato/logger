@@ -8,23 +8,28 @@ unsigned int Logger::_counter = 0;
 
 void Logger::Log(string str, ...)
 {
-	lock_guard<mutex> lock(_logguard); // RAII
+	if (_enabled) {
+		lock_guard<mutex> lock(_logguard); // RAII
 
-	stringstream log;
-	log << _counter << " " << clock() << " " << str;
+		stringstream log;
+		log << _counter << " " << clock() << " " << str;
 
-	cout << log.str() << endl;
+		cout << log.str() << endl;
 
-	if (_logtofile) {
-		_logfile << log.str() << endl;
+		if (_logtofile) {
+			_logfile << log.str() << endl;
+		}
+
+		_counter++;
 	}
-
-	_counter++;
 }
 
 Logger::Logger()
 {
+	cout << "Logger::Logger()" << endl;
+
 	_logtofile = false;
+	_enabled = false;
 	_counter = 0;
 
 	Config();
@@ -41,7 +46,13 @@ Logger::Logger()
 
 Logger::~Logger()
 {
+	cout << "Logger::~Logger()" << endl;
 	_logfile.close();
+}
+
+void Logger::Enable(bool enable)
+{
+	_enabled = enable;
 }
 
 void Logger::Config(void)
@@ -72,8 +83,15 @@ void Logger::Config(void)
 					strftime (buffer, 80, "%F-%X", timeinfo);
 					_logfilename = buffer;
 					_logfilename += ".log";
-				} else {
+				} else if (!value.empty()) {
 					_logfilename = value;
+				}
+			}
+			if ("enabled" == key) {
+				if (("no" == value) || ("No" == value)) {
+					_enabled = false;
+				} else {
+					_enabled = true;
 				}
 			}
 		}

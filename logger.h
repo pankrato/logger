@@ -15,6 +15,7 @@ public:
 		return instance;
 	}
 	void Log(string, ...);
+	void Enable(bool);
 
 private:
 	Logger();
@@ -26,6 +27,7 @@ private:
 	string _logfilename;
 	ofstream _logfile;
 	bool _logtofile;
+	bool _enabled;
 };
 
 #define LOG Logger::Instance().Log
