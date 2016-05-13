@@ -2,60 +2,61 @@
 #include <iostream>
 #include <sstream>
 #include <ctime>
+#include <thread>
 #include "logger.h"
 
-unsigned int Logger::_counter = 0;
-
-void Logger::Log(string str, ...)
+void Logger::log(const Level level, const string& str)
 {
-	if (_enabled) {
-		lock_guard<mutex> lock(_logguard); // RAII
+	// logs continuous numbering counter
+	static unsigned int counter = 0;
+
+	if (enabled && level >= loglevel) {
+		lock_guard<mutex> lock(logguard); // RAII
 
 		stringstream log;
-		log << _counter << " " << clock() << " " << str;
+		log	<< counter << " "
+			<< clock() << " "
+			<< level2string(level) << ": "
+			<< str;
 
 		cout << log.str() << endl;
 
-		if (_logtofile) {
-			_logfile << log.str() << endl;
+		if (logtofile) {
+			logfile << log.str() << endl;
 		}
 
-		_counter++;
+		counter++;
 	}
 }
 
 Logger::Logger()
 {
-	cout << "Logger::Logger()" << endl;
+	logtofile = false;
+	enabled = false;
 
-	_logtofile = false;
-	_enabled = false;
-	_counter = 0;
+	config();
 
-	Config();
+	if (!logfilename.empty()) {
+		logfile.open(logfilename);
 
-	if (!_logfilename.empty()) {
-		_logfile.open(_logfilename);
-
-		if (_logfile) {
-			_logtofile = true;
-			cout << "Logging to file " << _logfilename << endl;
+		if (logfile) {
+			logtofile = true;
+			cout << "Logging to file " << logfilename << endl;
 		}
 	}
 }
 
 Logger::~Logger()
 {
-	cout << "Logger::~Logger()" << endl;
-	_logfile.close();
+	logfile.close();
 }
 
-void Logger::Enable(bool enable)
+void Logger::enable(bool enable)
 {
-	_enabled = enable;
+	enabled = enable;
 }
 
-void Logger::Config(void)
+void Logger::config(void)
 {
 	ifstream configfile ("config");
 
@@ -71,6 +72,13 @@ void Logger::Config(void)
 			auto key = line.substr(0, pos);
 			auto value = line.substr(pos + 1);
 
+			if ("enabled" == key) {
+				if (("no" == value) || ("No" == value)) {
+					enabled = false;
+				} else {
+					enabled = true;
+				}
+			}
 			if ("filename" == key) {
 				if ("default" == value) {
 					time_t rawtime;
@@ -81,20 +89,54 @@ void Logger::Config(void)
 					timeinfo = localtime (&rawtime);
 
 					strftime (buffer, 80, "%F-%X", timeinfo);
-					_logfilename = buffer;
-					_logfilename += ".log";
+					logfilename = buffer;
+					logfilename += ".log";
 				} else if (!value.empty()) {
-					_logfilename = value;
+					logfilename = value;
 				}
 			}
-			if ("enabled" == key) {
-				if (("no" == value) || ("No" == value)) {
-					_enabled = false;
-				} else {
-					_enabled = true;
+			if ("level" == key) {
+				if (("Default" == value) || ("default" == value)) {
+					loglevel = Level::Default;
+				} else if (("None" == value) || ("none" == value)) {
+					loglevel = Level::None;
+				} else if (("Error" == value) || ("error" == value)) {
+					loglevel = Level::Error;
+				} else if (("Warning" == value) || ("warning" == value)) {
+					loglevel = Level::Warning;
+				} else if (("Info" == value) || ("info" == value)) {
+					loglevel = Level::Info;
+				} else if (("All" == value) || ("all" == value)) {
+					loglevel = Level::All;
 				}
 			}
 		}
 		configfile.close();
 	}
 }
+
+void Logger::level(Level level)
+{
+	loglevel = level;
+}
+
+string Logger::level2string(Level level)
+{
+	string levstr = "";
+
+	switch (level) {
+		case Level::Error:
+			levstr = "Error";
+			break;
+		case Level::Warning:
+			levstr = "Warning";
+			break;
+		case Level::Info:
+			levstr = "Info";
+			break;
+		default:
+			levstr = "Bad";
+	}
+	return levstr;		
+}
+

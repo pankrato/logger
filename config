@@ -1,2 +1,4 @@
-enabled=No
+enabled=yes
 filename=default
+
+level=default

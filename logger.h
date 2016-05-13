@@ -6,29 +6,45 @@
 
 using namespace std;
 
+enum class Level {
+	All	= 0x00,
+	Info	= 0x10,
+	Warning	= 0x20,
+	Error	= 0x30,
+	None	= 0xff,
+	Default	= All
+};
+
+
 class Logger
 {
 public:
-	static Logger& Instance()
-	{
-		static Logger instance;
-		return instance;
-	}
-	void Log(string, ...);
-	void Enable(bool);
-
-private:
 	Logger();
 	~Logger();
-	void Config();
 
-	static unsigned int _counter;
-	mutex _logguard;
-	string _logfilename;
-	ofstream _logfile;
-	bool _logtofile;
-	bool _enabled;
+	// logging function
+	void log(const Level, const string&);
+	// enable/disable logging on the fly
+	void enable(const bool);
+	// set logging level on the fly
+	void level(Level);
+
+private:
+	// logger configuration function
+	void config();
+	string level2string(Level);
+
+	// mutex for critical section
+	Level loglevel;
+	// mutex for critical section
+	mutex logguard;
+	// name of the file to log to
+	string logfilename;
+	// output file stream for log messages
+	ofstream logfile;
+	// configuration flag to enable/disable logging as such
+	bool enabled;
+	// configuration flag enables logging to a file
+	bool logtofile;
 };
-
-#define LOG Logger::Instance().Log
 
