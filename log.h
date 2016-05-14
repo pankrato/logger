@@ -25,9 +25,9 @@ public:
 	{
 		instance().enable(false);
 	}
-	static void level(Level level)
+	static void setLevel(Level level)
 	{
-		instance().level(level);
+		instance().setLevel(level);
 	}
 
 
@@ -44,7 +44,7 @@ private:
 	Log& operator=(const Log&) = delete;
 };
 
-class Loggable
+class ILoggable
 {
 protected:
 	virtual string tostring() const = 0;

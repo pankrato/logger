@@ -7,53 +7,52 @@
 
 void Logger::log(const Level level, const string& str)
 {
-	// logs continuous numbering counter
-	static unsigned int counter = 0;
-
-	if (enabled && level >= loglevel) {
-		lock_guard<mutex> lock(logguard); // RAII
+	if (mEnabled && level >= mLogLevel) {
+		lock_guard<mutex> lock(mLogGuard); // RAII
 
 		stringstream log;
-		log	<< counter << " "
+		log	<< mCounter << " "
 			<< clock() << " "
 			<< level2string(level) << ": "
 			<< str;
 
 		cout << log.str() << endl;
 
-		if (logtofile) {
-			logfile << log.str() << endl;
+		if (mLogToFile) {
+			mLogFile << log.str() << endl;
 		}
 
-		counter++;
+		mCounter++;
 	}
 }
 
 Logger::Logger()
 {
-	logtofile = false;
-	enabled = false;
+	mLogToFile  = false;
+	mEnabled    = false;
+    mCounter    = 0;
+    mLogLevel   = Level::Default;
 
 	config();
 
-	if (!logfilename.empty()) {
-		logfile.open(logfilename);
+	if (!mLogFileName.empty()) {
+		mLogFile.open(mLogFileName);
 
-		if (logfile) {
-			logtofile = true;
-			cout << "Logging to file " << logfilename << endl;
+		if (mLogFile) {
+			mLogToFile = true;
+			cout << "Logging to file " << mLogFileName << endl;
 		}
 	}
 }
 
 Logger::~Logger()
 {
-	logfile.close();
+	mLogFile.close();
 }
 
-void Logger::enable(bool enable)
+void Logger::enable(const bool enable)
 {
-	enabled = enable;
+	mEnabled = enable;
 }
 
 void Logger::config(void)
@@ -65,18 +64,18 @@ void Logger::config(void)
 
 			auto pos = line.find("=");
 
-			if (string::npos == pos) {	// no config option found
-				continue;		// check the next line
+			if (string::npos == pos) {  // no config option found
+				continue;               // check the next line
 			}
-			// something found - store the findings
+			// something found - keep the findings
 			auto key = line.substr(0, pos);
 			auto value = line.substr(pos + 1);
 
 			if ("enabled" == key) {
 				if (("no" == value) || ("No" == value)) {
-					enabled = false;
+					mEnabled = false;
 				} else {
-					enabled = true;
+					mEnabled = true;
 				}
 			}
 			if ("filename" == key) {
@@ -89,54 +88,48 @@ void Logger::config(void)
 					timeinfo = localtime (&rawtime);
 
 					strftime (buffer, 80, "%F-%X", timeinfo);
-					logfilename = buffer;
-					logfilename += ".log";
+					mLogFileName = buffer;
+					mLogFileName += ".log";
 				} else if (!value.empty()) {
-					logfilename = value;
+					mLogFileName = value;
 				}
 			}
 			if ("level" == key) {
-				if (("Default" == value) || ("default" == value)) {
-					loglevel = Level::Default;
-				} else if (("None" == value) || ("none" == value)) {
-					loglevel = Level::None;
+				if (("None" == value) || ("none" == value)) {
+					mLogLevel = Level::None;
 				} else if (("Error" == value) || ("error" == value)) {
-					loglevel = Level::Error;
+					mLogLevel = Level::Error;
 				} else if (("Warning" == value) || ("warning" == value)) {
-					loglevel = Level::Warning;
+					mLogLevel = Level::Warning;
 				} else if (("Info" == value) || ("info" == value)) {
-					loglevel = Level::Info;
+					mLogLevel = Level::Info;
 				} else if (("All" == value) || ("all" == value)) {
-					loglevel = Level::All;
-				}
+					mLogLevel = Level::All;
+				} else {
+					mLogLevel = Level::Default;
+
 			}
 		}
 		configfile.close();
 	}
 }
 
-void Logger::level(Level level)
+void Logger::setLevel(Level level)
 {
-	loglevel = level;
+	mLogLevel = level;
 }
 
-string Logger::level2string(Level level)
+string Logger::level2string(Level level) const
 {
-	string levstr = "";
-
 	switch (level) {
-		case Level::Error:
-			levstr = "Error";
-			break;
-		case Level::Warning:
-			levstr = "Warning";
-			break;
-		case Level::Info:
-			levstr = "Info";
-			break;
-		default:
-			levstr = "Bad";
+		case Level::Error:      return "Error";
+		case Level::Warning:    return "Warning";
+		case Level::Info:       return "Info";
+        // fall through
+		case Level::All:
+		case Level::None:
+        default:                break;
 	}
-	return levstr;		
+    return "Wrong level!";
 }
 

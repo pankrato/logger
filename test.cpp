@@ -6,11 +6,12 @@
 
 using namespace std;
 
-class MyType: public Loggable
+class MyType: public ILoggable
 {
 	uint32_t Re, Im;
 
 public:
+	MyType(): Re(0), Im(0) {}
 	MyType(uint32_t re, uint32_t im): Re(re), Im(im) {}
 
 	virtual string tostring() const
@@ -50,9 +51,7 @@ int main() {
 	}
 
 	for (uint32_t i = 0; i < nthreads; i++) {
-		if (thread_array[i].joinable()) {
-			thread_array[i].join();
-		}
+		thread_array[i].join();
 	}
 
 	logend = high_resolution_clock::now();
@@ -66,9 +65,7 @@ int main() {
 	}
 
 	for (uint32_t i = 0; i < nthreads; i++) {
-		if (thread_array[i].joinable()) {
-			thread_array[i].join();
-		}
+		thread_array[i].join();
 	}
 
 	logend = high_resolution_clock::now();
@@ -87,7 +84,7 @@ int main() {
 	my_var.log();
 
 	// set level test
-	Log::level(Level::Error);
+	Log::setLevel(Level::Error);
 	Log::e("Test error level");
 	Log::w("Test warning level"); // this log shall be omitted
 
