@@ -2,6 +2,12 @@
 
 #include "logger.h"
 
+class ILoggable
+{
+public:
+    virtual string tostring() const = 0;
+};
+
 class Log
 {
 public:
@@ -16,6 +22,10 @@ public:
     static void e(const string& s)
     {
         instance().log(Level::Error, s);
+    }
+    static void log(const ILoggable& l)
+    {
+        instance().log(Level::Info, l.tostring());
     }
     static void enable()
     {
@@ -41,16 +51,5 @@ private:
     Log();
     Log(const Log&) = delete;
     Log& operator=(const Log&) = delete;
-};
-
-class ILoggable
-{
-protected:
-    virtual string tostring() const = 0;
-public:
-    void log()
-    {
-        Log::i(tostring());
-    }
 };
 

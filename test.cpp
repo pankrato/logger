@@ -81,8 +81,8 @@ void TestLevelSet(void)
 // user type logging test
 void TestUserTypeLog(void)
 {
-    MyType my_var(3, 5);
-    my_var.log();
+    MyType my(3, 5);
+    Log::log(my); // will be logged with level "Info"
 }
 
 int main(void)
