@@ -5,25 +5,25 @@
 class ILoggable
 {
 public:
-    virtual string tostring() const = 0;
+    virtual std::string tostring() const = 0;
 };
 
 class Log
 {
 public:
-    static void i(const string& s)
+    static void i(const std::string& s)
     {
         instance().log(Level::Info, s);
     }
-    static void w(const string& s)
+    static void w(const std::string& s)
     {
         instance().log(Level::Warning, s);
     }
-    static void e(const string& s)
+    static void e(const std::string& s)
     {
         instance().log(Level::Error, s);
     }
-    static void log(const ILoggable& l)
+    static void l(const ILoggable& l)
     {
         instance().log(Level::Info, l.tostring());
     }

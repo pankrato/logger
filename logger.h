@@ -4,8 +4,6 @@
 #include <fstream>
 #include <mutex>
 
-using namespace std;
-
 enum class Level {
     All     = 0x00,
     Info	= 0x10,
@@ -22,7 +20,7 @@ public:
     ~Logger();
 
     // logging function
-    void log(const Level, const string&);
+    void log(const Level, const std::string&);
     // enable/disable logging on the fly
     void enable(const bool);
     // set logging level on the fly
@@ -31,16 +29,16 @@ public:
 private:
     // logger configuration function
     void config();
-    string level2string(Level) const;
+    std::string level2string(Level) const;
 
     // mutex for critical section
     Level mLogLevel;
     // mutex for critical section
-    mutex mLogGuard;
+    std::mutex mLogGuard;
     // name of the file to log to
-    string mLogFileName;
+    std::string mLogFileName;
     // output file stream for log messages
-    ofstream mLogFile;
+    std::ofstream mLogFile;
     // configuration flag to enable/disable logging as such
     bool mEnabled;
     // configuration flag enables logging to a file

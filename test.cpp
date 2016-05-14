@@ -82,7 +82,7 @@ void TestLevelSet(void)
 void TestUserTypeLog(void)
 {
     MyType my(3, 5);
-    Log::log(my); // will be logged with level "Info"
+    Log::l(my); // will be logged with level "Info"
 }
 
 int main(void)

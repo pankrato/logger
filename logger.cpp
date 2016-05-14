@@ -4,6 +4,8 @@
 #include <thread>
 #include "logger.h"
 
+using namespace std;
+
 void Logger::log(const Level level, const string& str)
 {
     if (mEnabled && level >= mLogLevel) {
