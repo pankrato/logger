@@ -7,7 +7,7 @@
 using namespace std;
 
 enum class Level {
-    All	= 0x00,
+    All     = 0x00,
     Info	= 0x10,
     Warning	= 0x20,
     Error	= 0x30,
