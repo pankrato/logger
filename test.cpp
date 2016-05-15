@@ -63,11 +63,10 @@ void TestPerformance(uint32_t howmany = 10)
     Multithreading(howmany);
     logend = high_resolution_clock::now();
     withoutlog = duration_cast<duration<double>>(logend - logstart);
+    Log::enable();
     log.str("");
     log << "Test execution time without logging " << withoutlog.count() << " seconds.";
     Log::i(log.str());
-
-    Log::enable();
 }
 // set level test
 void TestLevelSet(void)
