@@ -6,11 +6,11 @@ class Logger;
 
 enum class Level {
     All     = 0x00,
-    Info	= 0x10,
-    Warning	= 0x20,
-    Error	= 0x30,
-    None	= 0xff,
-    Default	= All
+    Info    = 0x10,
+    Warning = 0x20,
+    Error   = 0x30,
+    None    = 0xff,
+    Default = All
 };
 
 class ILoggable
