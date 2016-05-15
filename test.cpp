@@ -74,7 +74,9 @@ void TestLevelSet(void)
 {
     Log::setLevel(Level::Error);
     Log::e("Test error level");
-    Log::w("Test warning level"); // this log shall be omitted
+    Log::w("Test warning level -- FAIL!"); // this log shall be omitted
+    Log::setLevel(Level::Warning);
+    Log::w("Test warning level -- pass"); // now shall be printed
     Log::setLevel(Level::Default);
 }
 

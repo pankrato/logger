@@ -31,19 +31,15 @@ private:
     void config();
     std::string level2string(Level) const;
 
+    // configuration flag to enable/disable logging as such
+    bool mEnabled;
+    // logs continuous numbering counter
+    uint32_t mCounter;
     // mutex for critical section
     Level mLogLevel;
     // mutex for critical section
     std::mutex mLogGuard;
-    // name of the file to log to
-    std::string mLogFileName;
     // output file stream for log messages
     std::ofstream mLogFile;
-    // configuration flag to enable/disable logging as such
-    bool mEnabled;
-    // configuration flag enables logging to a file
-    bool mLogToFile;
-    // logs continuous numbering counter
-    uint32_t mCounter;
 };
 

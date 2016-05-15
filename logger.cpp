@@ -2,14 +2,15 @@
 #include <sstream>
 #include <ctime>
 #include <thread>
+#include <algorithm>
 #include "logger.h"
 
 using namespace std;
 
 void Logger::log(const Level level, const string& str)
 {
-    if (mEnabled && level >= mLogLevel) {
-        lock_guard<mutex> lock(mLogGuard); // RAII
+    if (mEnabled && (level >= mLogLevel)) {
+        lock_guard<mutex> lock(mLogGuard);
 
         stringstream log;
         log	<< mCounter << " "
@@ -19,35 +20,26 @@ void Logger::log(const Level level, const string& str)
 
         cout << log.str() << endl;
 
-        if (mLogToFile) {
+        if (mLogFile.is_open()) {
             mLogFile << log.str() << endl;
         }
         mCounter++;
     }
 }
 
-Logger::Logger()
+Logger::Logger() :
+    mEnabled(false),
+    mCounter(1),
+    mLogLevel(Level::Default)
 {
-    mLogToFile  = false;
-    mEnabled    = false;
-    mCounter    = 0;
-    mLogLevel   = Level::Default;
-
 	config();
-
-    if (!mLogFileName.empty()) {
-        mLogFile.open(mLogFileName);
-
-        if (mLogFile) {
-            mLogToFile = true;
-            cout << "Logging to file " << mLogFileName << endl;
-        }
-    }
 }
 
 Logger::~Logger()
 {
-    mLogFile.close();
+    if (mLogFile.is_open()) {
+        mLogFile.close();
+    }
 }
 
 void Logger::enable(const bool enable)
@@ -62,6 +54,7 @@ void Logger::config(void)
     if (configfile) {
         for (string line; getline(configfile, line); ) {
 
+            transform(line.begin(), line.end(), line.begin(), ::tolower);
             auto pos = line.find("=");
 
             if (string::npos == pos) {  // no config option found
@@ -72,13 +65,20 @@ void Logger::config(void)
             auto value = line.substr(pos + 1);
 
             if ("enabled" == key) {
-                if (("no" == value) || ("No" == value)) {
+                // value "no" (as well as "No", "NO", "nO")
+                // will disable the logging
+                if ("no" == value) {
                     mEnabled = false;
+                // all other values will enable logging
                 } else {
                     mEnabled = true;
                 }
             }
             if ("filename" == key) {
+                string filename = "";
+
+                // by default the curent date and time
+                // will be taken as a log file name
                 if ("default" == value) {
                     time_t rawtime;
                     struct tm * timeinfo;
@@ -88,22 +88,32 @@ void Logger::config(void)
                     timeinfo = localtime (&rawtime);
 
                     strftime (buffer, 80, "%F-%X", timeinfo);
-                    mLogFileName = buffer;
-                    mLogFileName += ".log";
+                    filename = buffer;
+                    filename += ".log";
+
+                // any other non-empty string
+                // will be taken as a log file name
                 } else if (!value.empty()) {
-                    mLogFileName = value;
+                    filename = value;
+                }
+
+                if (!filename.empty()) {
+                    mLogFile.open(filename);
+                    if (mLogFile.is_open()) {
+                        cout << "Will log to file " << filename << endl;
+                    }
                 }
             }
             if ("level" == key) {
-                if (("None" == value) || ("none" == value)) {
+                if ("none" == value) {
                     mLogLevel = Level::None;
-                } else if (("Error" == value) || ("error" == value)) {
+                } else if ("error" == value) {
                     mLogLevel = Level::Error;
-                } else if (("Warning" == value) || ("warning" == value)) {
+                } else if ("warning" == value) {
                     mLogLevel = Level::Warning;
-                } else if (("Info" == value) || ("info" == value)) {
+                } else if ("info" == value) {
                     mLogLevel = Level::Info;
-                } else if (("All" == value) || ("all" == value)) {
+                } else if ("all" == value) {
                     mLogLevel = Level::All;
                 } else {
                     mLogLevel = Level::Default;
@@ -125,11 +135,9 @@ string Logger::level2string(Level level) const
         case Level::Error:      return "Error";
         case Level::Warning:    return "Warning";
         case Level::Info:       return "Info";
-        // fall through
-        case Level::All:
-        case Level::None:
-        default:                break;
+        case Level::All:        // fall through
+        case Level::None:       // fall through
+        default:                return "Wrong level!";
     }
-    return "Wrong level!";
 }
 
