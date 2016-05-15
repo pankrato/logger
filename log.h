@@ -1,6 +1,17 @@
 #pragma once
 
-#include "logger.h"
+#include <string>
+
+class Logger;
+
+enum class Level {
+    All     = 0x00,
+    Info	= 0x10,
+    Warning	= 0x20,
+    Error	= 0x30,
+    None	= 0xff,
+    Default	= All
+};
 
 class ILoggable
 {
@@ -11,41 +22,16 @@ public:
 class Log
 {
 public:
-    static void i(const std::string& s)
-    {
-        instance().log(Level::Info, s);
-    }
-    static void w(const std::string& s)
-    {
-        instance().log(Level::Warning, s);
-    }
-    static void e(const std::string& s)
-    {
-        instance().log(Level::Error, s);
-    }
-    static void l(const ILoggable& l)
-    {
-        instance().log(Level::Info, l.tostring());
-    }
-    static void enable()
-    {
-        instance().enable(true);
-    }
-    static void disable()
-    {
-        instance().enable(false);
-    }
-    static void setLevel(Level level)
-    {
-        instance().setLevel(level);
-    }
+    static void i(const std::string&);
+    static void w(const std::string&);
+    static void e(const std::string&);
+    static void l(const ILoggable&);
+    static void enable();
+    static void disable();
+    static void setLevel(Level);
 
 private:
-    static Logger& instance()
-    {
-        static Logger logger;
-        return logger;
-    }
+    static Logger& instance();
 
     // prohibited to be called from outside
     Log();
