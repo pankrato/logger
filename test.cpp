@@ -43,7 +43,7 @@ void Multithreading(uint32_t howmany = 10)
     }
 }
 // logging performance test
-void TestPerformance(uint32_t howmany = 100000)
+void TestPerformance(uint32_t howmany = 10)
 {
     using namespace std::chrono;
     high_resolution_clock::time_point logstart, logend;

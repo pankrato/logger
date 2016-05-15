@@ -29,7 +29,7 @@ public:
 private:
     // logger configuration function
     void config();
-    std::string level2string(Level) const;
+    static std::string level2string(Level);
 
     // configuration flag to enable/disable logging as such
     bool mEnabled;

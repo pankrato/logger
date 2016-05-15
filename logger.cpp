@@ -9,8 +9,10 @@ using namespace std;
 
 void Logger::log(const Level level, const string& str)
 {
+
+    lock_guard<mutex> lock(mLogGuard);
+
     if (mEnabled && (level >= mLogLevel)) {
-        lock_guard<mutex> lock(mLogGuard);
 
         stringstream log;
         log	<< mCounter << " "
@@ -129,7 +131,7 @@ void Logger::setLevel(Level level)
     mLogLevel = level;
 }
 
-string Logger::level2string(Level level) const
+string Logger::level2string(Level level)
 {
     switch (level) {
         case Level::Error:      return "Error";
