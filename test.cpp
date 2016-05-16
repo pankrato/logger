@@ -69,14 +69,26 @@ void TestPerformance(uint32_t howmany = 10)
     log << "Test execution time without logging " << withoutlog.count() << " seconds.";
     Log::i(log.str());
 }
-// set level test
-void TestLevelSet(void)
+// API test
+void TestApi(void)
 {
-    Log::setLevel(Level::Error);
-    Log::e("Test error level");
-    Log::w("Test warning level -- FAIL!"); // this log shall be omitted
+    Log::setLevel(Level::Info);
+    Log::i("Test level info");
+    Log::w("Test level warning");
+    Log::e("Test level error");
     Log::setLevel(Level::Warning);
-    Log::w("Test warning level -- pass"); // now shall be printed
+    Log::i("Test level info -- FAIL!");
+    Log::w("Test level warning");
+    Log::e("Test level error");
+    Log::setLevel(Level::Error);
+    Log::i("Test level info -- FAIL!");
+    Log::w("Test level warning -- FAIL!");
+    Log::e("Test level error");
+    Log::disable();
+    Log::i("Test level info -- FAIL!");
+    Log::w("Test level warning -- FAIL!");
+    Log::e("Test level error -- FAIL!");
+    Log::enable();
     Log::setLevel(Level::Default);
 }
 
@@ -94,8 +106,8 @@ int main(void)
     Log::enable(); // just in case
     Log::setLevel(Level::Default);
 
+    TestApi();
     TestPerformance(howmany);
-    TestLevelSet();
     TestUserTypeLog();
 
     return 0;
