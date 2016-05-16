@@ -1,6 +1,7 @@
 #include <thread>
 #include <sstream>
 #include <chrono>
+#include <vector>
 #include "log.h"
 
 using namespace std;
@@ -33,13 +34,13 @@ void thread_func(uint32_t threadno, uint32_t howmany)
 void Multithreading(uint32_t howmany = 10)
 {
     uint32_t nthreads = thread::hardware_concurrency();
-    thread thread_array[nthreads];
+    vector<thread> threadv(nthreads);
 
     for (uint32_t i = 0; i < nthreads; i++) {
-        thread_array[i] = thread(thread_func, i, howmany);
+        threadv[i] = thread(thread_func, i, howmany);
     }
     for (uint32_t i = 0; i < nthreads; i++) {
-        thread_array[i].join();
+        threadv[i].join();
     }
 }
 // logging performance test
